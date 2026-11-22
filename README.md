@@ -79,12 +79,99 @@ Custom connectors in Claude on the web and desktop, and ChatGPT, accept only a U
 
 ### Fields
 
-The fields of each capability are documented on the English pages linked below.
+These are the fields that the 4 capabilities returned in our test. Each meaning is the first sentence of the field's entry in the API documentation. The link under each table has the full text.
 
-- `search`: <https://everyinfra.com/en/jd-api/search?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
-- `product_detail`: <https://everyinfra.com/en/jd-api/product_detail?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
-- `product_price`: <https://everyinfra.com/en/jd-api/product_price?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
-- `reviews`: <https://everyinfra.com/en/jd-api/reviews?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
+#### `search` (keyword search)
+
+| Field | Meaning |
+|---|---|
+| `item_id` | JD numeric product ID. |
+| `url` | Link to the record on the platform. |
+| `title` | Title. null when the platform has no titles (for example text-only posts). |
+| `price` | Price as a number without a currency symbol; see currency. |
+| `currency` | Currency code of the price (for example CNY, USD). |
+| `review_count` | Review count as shown in search results (search): display text that may be rounded, not an exact count. |
+| `good_rate` | Public positive-review percentage shown by JD. |
+| `shop_id` | JD numeric shop ID. |
+| `shop_name` | Public shop name. |
+| `shop_url` | Public JD shop page. |
+| `is_jd_self` | Whether this is a JD self-operated (JD.com retail) product. |
+| `category_ids` | JD category ID path. |
+| `image_url` | Image URL: in search, product_detail, shop and skus it is the product's main (cover) image; in description_images it is the description image of that row (the full-size https image on JD's image host). |
+| `platform` | Source platform identifier, the same as platform in the request (for example xiaohongshu, tiktok). |
+
+Other fields that the test returned: `review_count_display`.
+
+All parameters and fields: <https://everyinfra.com/en/jd-api/search?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
+
+#### `product_detail` (product details)
+
+| Field | Meaning |
+|---|---|
+| `item_id` | JD numeric product ID. |
+| `url` | Link to the record on the platform. |
+| `title` | Title. null when the platform has no titles (for example text-only posts). |
+| `price_display` | Price string exactly as shown on the JD page; may be masked by login or membership conditions. |
+| `price_masked` | Whether JD masked the price on the detail page. |
+| `currency` | Currency code of the price (for example CNY, USD). |
+| `available` | Whether the item could be bought when it was read (product_detail, product_price and shop rows); false when out of stock, null when the page did not say. |
+| `shop_id` | JD numeric shop ID. |
+| `shop_name` | Public shop name. |
+| `shop_url` | Public JD shop page. |
+| `category_id` | JD leaf category ID of the product (product_detail). |
+| `stock` | Stock quantity JD shows publicly; null means the page did not give one, not zero. |
+| `stock_state` | Public JD stock status code. |
+| `color` | This SKU's color (or finish) as shown on the JD page. |
+| `weight` | Product weight as written on the JD page (product_detail); null when the page gives none. |
+| `image_url` | Image URL: in search, product_detail, shop and skus it is the product's main (cover) image; in description_images it is the description image of that row (the full-size https image on JD's image host). |
+| `image_urls` | Product gallery image URLs (cover included, in the order shown on the JD page). |
+| `brand` | Product brand. |
+| `model` | Product model number. |
+| `upc` | Product barcode (UPC/EAN). null when the page does not provide one. |
+| `warranty` | Warranty terms, as written on the page. |
+| `product_area` | Place of origin. |
+| `is_jd_express` | Whether the item ships via JD Logistics. |
+| `variant_count` | Number of variants (SKUs). null when there are none or it is not provided. |
+| `variants` | Variant list. |
+| `platform` | Source platform identifier, the same as platform in the request (for example xiaohongshu, tiktok). |
+
+All parameters and fields: <https://everyinfra.com/en/jd-api/product_detail?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
+
+#### `product_price` (product price)
+
+| Field | Meaning |
+|---|---|
+| `item_id` | JD numeric product ID. |
+| `url` | Link to the record on the platform. |
+| `price` | Price as a number without a currency symbol; see currency. |
+| `currency` | Currency code of the price (for example CNY, USD). |
+| `available` | Whether the item could be bought when it was read (product_detail, product_price and shop rows); false when out of stock, null when the page did not say. |
+| `platform` | Source platform identifier, the same as platform in the request (for example xiaohongshu, tiktok). |
+
+All parameters and fields: <https://everyinfra.com/en/jd-api/product_price?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
+
+#### `reviews` (reviews)
+
+| Field | Meaning |
+|---|---|
+| `id` | The record's unique ID on the platform. |
+| `item_id` | JD numeric product ID. |
+| `text` | Body text with HTML removed, returned in full and never cut short (on a few platforms the list results themselves carry only an excerpt; the platform's field notes say so). |
+| `rating` | Rating. **The scale varies by platform**: rating_scale on the same row gives the maximum (usually 5; Booking, Douban, iQIYI and NAVER use 10). |
+| `posted_at` | Publish time in ISO 8601, UTC (for example 2026-08-07T12:34:56+00:00). |
+| `color` | This SKU's color (or finish) as shown on the JD page. |
+| `images` | Array of image links in the platform's display order; absent when there are no images. |
+| `author_name` | Reviewer nickname, returned as JD shows it (JD may already partially mask it). |
+| `author_avatar_url` | Reviewer avatar URL. |
+| `author_is_plus` | Whether the reviewer is a JD PLUS member. |
+| `buy_count` | How many times the reviewer bought this item, as the page shows ('purchased N times'). |
+| `platform` | Source platform identifier, the same as platform in the request (for example xiaohongshu, tiktok). |
+| `next_page_token` | Page token: pass it back unchanged as `page_token`, with the other parameters the same, to fetch the next page; valid for 24 hours and only for the same product. |
+| `rating_scale` | Maximum of rating in the same row: 5 for five-star scales, 10 for ten-point scales. |
+
+Other fields that the test returned: `useful_count`.
+
+All parameters and fields: <https://everyinfra.com/en/jd-api/reviews?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
 
 ### FAQ
 
