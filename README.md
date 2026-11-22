@@ -1,6 +1,133 @@
-# 京东 API（JD.com API）
+# JD.com API（京东 API）
 
-[中文](#中文) · [English](#english)
+[English](#english) · [中文](#中文)
+
+## English
+
+This repo reads public JD.com data with Python or curl. You can search products by keyword and read product details, the current price, and buyer reviews. You need one EveryInfra API key. You do not need a JD.com account or cookie. The same API also works as an MCP tool in Claude and Cursor. Billing is per call: these 4 capabilities cost $2.44 to $8.00 per 1,000 calls. Failed calls and empty results are not charged. The EveryInfra JD.com API has 7 capabilities, all listed on the platform page: <https://everyinfra.com/en/jd-api?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
+
+### Quick start
+
+```bash
+git clone https://github.com/everyinfra/jd-api.git
+cd jd-api
+pip install -r requirements.txt
+export EVERYINFRA_API_KEY=<your API key>
+python main.py search 咖啡机 --out items.csv
+python main.py item <item_id> --out item.json
+python main.py price <item_id>
+python main.py reviews <item_id> --out reviews.csv
+```
+
+- For `item`, `price`, and `reviews`, use the numeric `item_id` from a `search` result.
+- `search` returns 5 rows by default. Every 5 rows count as one call.
+- `price` returns the current `price` and its `currency`.
+- Without `--out`, the command prints the first 3 rows as JSON. With `--out`, it saves a .csv or .json file. The CSV has a BOM, so Excel opens it without garbled text.
+- Register at everyinfra.com, then create the API key in the console. Steps: <https://everyinfra.com/en/docs?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api#quickstart>
+
+### curl
+
+```bash
+curl -X POST https://api.everyinfra.com/api/v1/social \
+  -H "Authorization: Bearer $EVERYINFRA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"platform":"jd","action":"search","params":{"keyword":"咖啡机"}}'
+```
+
+All capabilities use the same URL. Change `action` and `params` to call another one. Examples for `product_detail`, `product_price`, and `reviews` are in [examples/curl.sh](examples/curl.sh).
+
+### Claude and Cursor (MCP)
+
+The remote MCP URL is <https://api.everyinfra.com/mcp>. Add the `Authorization: Bearer` header with your API key. EveryInfra runs the server, so you install no local program.
+
+Claude Code:
+
+```bash
+claude mcp add --transport http everyinfra https://api.everyinfra.com/mcp --header "Authorization: Bearer <API Key>"
+```
+
+Cursor and other clients that read `mcp.json` ([examples/mcp.json](examples/mcp.json)):
+
+```json
+{
+  "mcpServers": {
+    "everyinfra": {
+      "url": "https://api.everyinfra.com/mcp",
+      "headers": {
+        "Authorization": "Bearer <API Key>"
+      }
+    }
+  }
+}
+```
+
+Custom connectors in Claude on the web and desktop, and ChatGPT, accept only a URL. Enter <https://api.everyinfra.com/mcp/all>, sign in to EveryInfra when asked, and allow access. You do not need to enter a key. Full steps: <https://everyinfra.com/en/mcp-server?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
+
+### Price
+
+| `action` | Per 1,000 calls |
+|---|---|
+| `search` | $2.47 |
+| `product_detail` | $2.44 |
+| `product_price` | $5.56 |
+| `reviews` | $8.00 |
+
+- Billing is per call, about $0.0024 to $0.008 each. Failed calls, empty results, parameter errors, and authentication failures are not charged.
+- `search` is billed by the rows you ask for: every 5 rows count as one call, and blocks that come back with no rows are not charged.
+- A new account gets a $1 trial allowance, valid for 24 hours. No credit card is needed. How to claim it: <https://everyinfra.com/en/pricing?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
+- Prices for the other 3 JD.com capabilities are on the platform page: <https://everyinfra.com/en/jd-api?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
+
+### Fields
+
+The fields of each capability are documented on the English pages linked below.
+
+- `search`: <https://everyinfra.com/en/jd-api/search?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
+- `product_detail`: <https://everyinfra.com/en/jd-api/product_detail?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
+- `product_price`: <https://everyinfra.com/en/jd-api/product_price?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
+- `reviews`: <https://everyinfra.com/en/jd-api/reviews?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
+
+### FAQ
+
+**Do I need a JD.com account or cookie to call the API?**
+
+No. Send the `Authorization: Bearer` header with your API key. The request body holds `platform`, `action`, and the capability parameters. You do not scan a QR code, keep a login session, or open a browser.
+
+**How much does it cost? Are failed calls charged? Is there a free allowance?**
+
+Billing is per call, from $2.44 per 1,000 calls. Failed calls, empty results, parameter errors, and authentication failures are not charged. A new account gets a $1 trial allowance, valid for 24 hours. No credit card is needed. How to claim it: <https://everyinfra.com/en/pricing?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
+
+**Can I connect the JD.com API to Claude or Cursor?**
+
+Yes. The remote MCP URL is <https://api.everyinfra.com/mcp>. Add the `Authorization: Bearer` header with your API key. You install no local program. Setup for Claude, Cursor, ChatGPT, and Claude Code: <https://everyinfra.com/en/mcp-server?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>.
+
+**What legal points apply when I use JD.com data?**
+
+The EveryInfra Terms of Service require you to make sure your use of the data follows applicable law and the terms of the relevant platform. Do not use the data for anything illegal or anything that violates privacy or intellectual property rights. Do not use bulk scraping for harassment, fraud, or other abuse. When you use personal information such as nicknames and avatars, keep only the fields your business needs.
+
+**Which JD.com data can I get?**
+
+The EveryInfra JD.com API has 7 capabilities:
+
+- keyword search
+- product details
+- reviews
+- shop
+- product price
+- All SKUs with prices
+- description images
+
+Parameters and return fields for each capability are on the platform page: <https://everyinfra.com/en/jd-api?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
+
+### Tested
+
+Before release, we ran the 4 commands in Quick start against the live API with this repo's code.
+
+| Command | Time (Singapore, UTC+8) | Rows | Charged |
+|---|---|---|---|
+| `python main.py search 咖啡机 --out items.csv` | 2026-11-21 09:20 | 5 | $0.002472 |
+| `python main.py item <item_id> --out item.json` | 2026-11-21 09:21 | 1 | $0.002444 |
+| `python main.py price <item_id>` | 2026-11-21 09:21 | 1 | $0.005556 |
+| `python main.py reviews <item_id> --out reviews.csv` | 2026-11-21 09:21 | 10 | $0.008000 |
 
 ## 中文
 
@@ -223,133 +350,6 @@ EveryInfra 服务条款要求你自行确保数据用法符合适用法律和相
   "variant_count": 3
 }
 ```
-
-## English
-
-This repo reads public JD.com data with Python or curl. You can search products by keyword and read product details, the current price, and buyer reviews. You need one EveryInfra API key. You do not need a JD.com account or cookie. The same API also works as an MCP tool in Claude and Cursor. Billing is per call: these 4 capabilities cost $2.44 to $8.00 per 1,000 calls. Failed calls and empty results are not charged. The EveryInfra JD.com API has 7 capabilities, all listed on the platform page: <https://everyinfra.com/en/jd-api?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
-
-### Quick start
-
-```bash
-git clone https://github.com/everyinfra/jd-api.git
-cd jd-api
-pip install -r requirements.txt
-export EVERYINFRA_API_KEY=<your API key>
-python main.py search 咖啡机 --out items.csv
-python main.py item <item_id> --out item.json
-python main.py price <item_id>
-python main.py reviews <item_id> --out reviews.csv
-```
-
-- For `item`, `price`, and `reviews`, use the numeric `item_id` from a `search` result.
-- `search` returns 5 rows by default. Every 5 rows count as one call.
-- `price` returns the current `price` and its `currency`.
-- Without `--out`, the command prints the first 3 rows as JSON. With `--out`, it saves a .csv or .json file. The CSV has a BOM, so Excel opens it without garbled text.
-- Register at everyinfra.com, then create the API key in the console. Steps: <https://everyinfra.com/en/docs?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api#quickstart>
-
-### curl
-
-```bash
-curl -X POST https://api.everyinfra.com/api/v1/social \
-  -H "Authorization: Bearer $EVERYINFRA_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"platform":"jd","action":"search","params":{"keyword":"咖啡机"}}'
-```
-
-All capabilities use the same URL. Change `action` and `params` to call another one. Examples for `product_detail`, `product_price`, and `reviews` are in [examples/curl.sh](examples/curl.sh).
-
-### Claude and Cursor (MCP)
-
-The remote MCP URL is <https://api.everyinfra.com/mcp>. Add the `Authorization: Bearer` header with your API key. EveryInfra runs the server, so you install no local program.
-
-Claude Code:
-
-```bash
-claude mcp add --transport http everyinfra https://api.everyinfra.com/mcp --header "Authorization: Bearer <API Key>"
-```
-
-Cursor and other clients that read `mcp.json` ([examples/mcp.json](examples/mcp.json)):
-
-```json
-{
-  "mcpServers": {
-    "everyinfra": {
-      "url": "https://api.everyinfra.com/mcp",
-      "headers": {
-        "Authorization": "Bearer <API Key>"
-      }
-    }
-  }
-}
-```
-
-Custom connectors in Claude on the web and desktop, and ChatGPT, accept only a URL. Enter <https://api.everyinfra.com/mcp/all>, sign in to EveryInfra when asked, and allow access. You do not need to enter a key. Full steps: <https://everyinfra.com/en/mcp-server?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
-
-### Price
-
-| `action` | Per 1,000 calls |
-|---|---|
-| `search` | $2.47 |
-| `product_detail` | $2.44 |
-| `product_price` | $5.56 |
-| `reviews` | $8.00 |
-
-- Billing is per call, about $0.0024 to $0.008 each. Failed calls, empty results, parameter errors, and authentication failures are not charged.
-- `search` is billed by the rows you ask for: every 5 rows count as one call, and blocks that come back with no rows are not charged.
-- A new account gets a $1 trial allowance, valid for 24 hours. No credit card is needed. How to claim it: <https://everyinfra.com/en/pricing?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
-- Prices for the other 3 JD.com capabilities are on the platform page: <https://everyinfra.com/en/jd-api?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
-
-### Fields
-
-The fields of each capability are documented on the English pages linked below.
-
-- `search`: <https://everyinfra.com/en/jd-api/search?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
-- `product_detail`: <https://everyinfra.com/en/jd-api/product_detail?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
-- `product_price`: <https://everyinfra.com/en/jd-api/product_price?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
-- `reviews`: <https://everyinfra.com/en/jd-api/reviews?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
-
-### FAQ
-
-**Do I need a JD.com account or cookie to call the API?**
-
-No. Send the `Authorization: Bearer` header with your API key. The request body holds `platform`, `action`, and the capability parameters. You do not scan a QR code, keep a login session, or open a browser.
-
-**How much does it cost? Are failed calls charged? Is there a free allowance?**
-
-Billing is per call, from $2.44 per 1,000 calls. Failed calls, empty results, parameter errors, and authentication failures are not charged. A new account gets a $1 trial allowance, valid for 24 hours. No credit card is needed. How to claim it: <https://everyinfra.com/en/pricing?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
-
-**Can I connect the JD.com API to Claude or Cursor?**
-
-Yes. The remote MCP URL is <https://api.everyinfra.com/mcp>. Add the `Authorization: Bearer` header with your API key. You install no local program. Setup for Claude, Cursor, ChatGPT, and Claude Code: <https://everyinfra.com/en/mcp-server?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>.
-
-**What legal points apply when I use JD.com data?**
-
-The EveryInfra Terms of Service require you to make sure your use of the data follows applicable law and the terms of the relevant platform. Do not use the data for anything illegal or anything that violates privacy or intellectual property rights. Do not use bulk scraping for harassment, fraud, or other abuse. When you use personal information such as nicknames and avatars, keep only the fields your business needs.
-
-**Which JD.com data can I get?**
-
-The EveryInfra JD.com API has 7 capabilities:
-
-- keyword search
-- product details
-- reviews
-- shop
-- product price
-- All SKUs with prices
-- description images
-
-Parameters and return fields for each capability are on the platform page: <https://everyinfra.com/en/jd-api?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
-
-### Tested
-
-Before release, we ran the 4 commands in Quick start against the live API with this repo's code.
-
-| Command | Time (Singapore, UTC+8) | Rows | Charged |
-|---|---|---|---|
-| `python main.py search 咖啡机 --out items.csv` | 2026-11-21 09:20 | 5 | $0.002472 |
-| `python main.py item <item_id> --out item.json` | 2026-11-21 09:21 | 1 | $0.002444 |
-| `python main.py price <item_id>` | 2026-11-21 09:21 | 1 | $0.005556 |
-| `python main.py reviews <item_id> --out reviews.csv` | 2026-11-21 09:21 | 10 | $0.008000 |
 
 ## License
 
