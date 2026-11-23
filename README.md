@@ -160,6 +160,7 @@ All parameters and fields: <https://everyinfra.com/en/jd-api/product_price?utm_s
 | `rating` | Rating. **The scale varies by platform**: rating_scale on the same row gives the maximum (usually 5; Booking, Douban, iQIYI and NAVER use 10). |
 | `posted_at` | Publish time in ISO 8601, UTC (for example 2026-08-07T12:34:56+00:00). |
 | `color` | This SKU's color (or finish) as shown on the JD page. |
+| `useful_count` | How many other shoppers marked this review as useful (reviews). |
 | `images` | Array of image links in the platform's display order; absent when there are no images. |
 | `author_name` | Reviewer nickname, returned as JD shows it (JD may already partially mask it). |
 | `author_avatar_url` | Reviewer avatar URL. |
@@ -168,8 +169,6 @@ All parameters and fields: <https://everyinfra.com/en/jd-api/product_price?utm_s
 | `platform` | Source platform identifier, the same as platform in the request (for example xiaohongshu, tiktok). |
 | `next_page_token` | Page token: pass it back unchanged as `page_token`, with the other parameters the same, to fetch the next page; valid for 24 hours and only for the same product. |
 | `rating_scale` | Maximum of rating in the same row: 5 for five-star scales, 10 for ten-point scales. |
-
-Other fields that the test returned: `useful_count`.
 
 All parameters and fields: <https://everyinfra.com/en/jd-api/reviews?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
 
@@ -374,6 +373,7 @@ Claude 网页版和桌面版的自定义连接器、ChatGPT 只能填网址：�
 | `rating` | 评分。 |
 | `posted_at` | 发布时间，ISO 8601 格式、UTC 时区（如 2026-08-07T12:34:56+00:00）。 |
 | `color` | 京东页面上这个 SKU 的颜色（或外观）属性值。 |
+| `useful_count` | 这条评价被其他买家点「有用」的次数（reviews）。 |
 | `images` | 图片链接数组，按平台展示顺序；没有图片时不出现这个字段。 |
 | `author_name` | 评价人昵称，按京东页面原样返回（京东可能已部分打码）。 |
 | `author_avatar_url` | 评价人头像链接。 |
@@ -382,8 +382,6 @@ Claude 网页版和桌面版的自定义连接器、ChatGPT 只能填网址：�
 | `platform` | 数据来源平台标识，与请求里的 platform 一致（如 xiaohongshu、tiktok）。 |
 | `next_page_token` | 翻页令牌：作为下一次请求的 page_token 原样传回取下一页（其余参数不变，24 小时内有效，只能用于同一个商品）；同一页每行的值相同，响应顶层也有同一个 next_page_token。 |
 | `rating_scale` | 上一列 `rating` 的满分。 |
-
-实测还返回了 `useful_count`，接口文档里还没有它的中文说明，表里没列。
 
 完整参数和字段：<https://everyinfra.com/jd-api/reviews?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
 
