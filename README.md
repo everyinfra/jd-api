@@ -90,7 +90,8 @@ These are the fields that the 4 capabilities returned in our test. Each meaning 
 | `title` | Title. null when the platform has no titles (for example text-only posts). |
 | `price` | Price as a number without a currency symbol; see currency. |
 | `currency` | Currency code of the price (for example CNY, USD). |
-| `review_count` | Review count as shown in search results (search): display text that may be rounded, not an exact count. |
+| `review_count` | Review count as an integer (search), parsed from the approximate text JD shows in search results: 20k+ becomes 20000 and 500+ becomes 500. |
+| `review_count_display` | Review count text exactly as JD shows it in search results (search): Chinese source text, such as JD's wording for 20k+. |
 | `good_rate` | Public positive-review percentage shown by JD. |
 | `shop_id` | JD numeric shop ID. |
 | `shop_name` | Public shop name. |
@@ -99,8 +100,6 @@ These are the fields that the 4 capabilities returned in our test. Each meaning 
 | `category_ids` | JD category ID path. |
 | `image_url` | Image URL: in search, product_detail, shop and skus it is the product's main (cover) image; in description_images it is the description image of that row (the full-size https image on JD's image host). |
 | `platform` | Source platform identifier, the same as platform in the request (for example xiaohongshu, tiktok). |
-
-Other fields that the test returned: `review_count_display`.
 
 All parameters and fields: <https://everyinfra.com/en/jd-api/search?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
 
@@ -303,7 +302,8 @@ Claude 网页版和桌面版的自定义连接器、ChatGPT 只能填网址：�
 | `title` | 标题。 |
 | `price` | 价格数值，不含货币符号；币种见 currency。 |
 | `currency` | 价格币种代码（如 CNY、USD）。 |
-| `review_count` | 搜索列表上显示的评价数原文（search），是文本、可能是约数，不是精确条数。 |
+| `review_count` | 搜索列表上的评价数，整数（search）：把京东显示的约数文本转成数字，「2万+」→ 20000，「500+」→ 500。 |
+| `review_count_display` | 京东搜索列表上显示的评价数原文（search），如「2万+」，原样返回；列表没给这个文本时不返回此列。 |
 | `good_rate` | 京东公开的好评率百分比。 |
 | `shop_id` | 京东店铺数字 ID。 |
 | `shop_name` | 公开店铺名称。 |
@@ -312,8 +312,6 @@ Claude 网页版和桌面版的自定义连接器、ChatGPT 只能填网址：�
 | `category_ids` | 京东类目 ID 路径。 |
 | `image_url` | 图片链接：search、product_detail、shop、skus 里是商品主图（封面）；description_images 里是这一行的那张详情图（京东图床的 https 原图）。 |
 | `platform` | 数据来源平台标识，与请求里的 platform 一致（如 xiaohongshu、tiktok）。 |
-
-实测还返回了 `review_count_display`，接口文档里还没有它的中文说明，表里没列。
 
 完整参数和字段：<https://everyinfra.com/jd-api/search?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api>
 
