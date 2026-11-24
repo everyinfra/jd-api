@@ -20,7 +20,7 @@ python main.py reviews <item_id> --out reviews.csv
 ```
 
 - For `item`, `price`, and `reviews`, use the numeric `item_id` from a `search` result.
-- `search` returns 5 rows by default. Every 5 rows count as one call.
+- `search` returns 5 rows by default; set `limit` for 1 to 30 per call. Every 5 rows count as one call. Page on with `next_page_token` or `page`, up to 150 results.
 - `price` returns the current `price` and its `currency`.
 - Without `--out`, the command prints the first 3 rows as JSON. With `--out`, it saves a .csv or .json file. The CSV has a BOM, so Excel opens it without garbled text.
 - Register at everyinfra.com, then create the API key in the console. Steps: <https://everyinfra.com/en/docs?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api#quickstart>
@@ -90,7 +90,7 @@ These are the fields that the 4 capabilities returned in our test. Each meaning 
 | `title` | Title. null when the platform has no titles (for example text-only posts). |
 | `price` | Price as a number without a currency symbol; see currency. |
 | `currency` | Currency code of the price (for example CNY, USD). |
-| `review_count` | Review count as an integer (search), parsed from the approximate text JD shows in search results: 20k+ becomes 20000 and 500+ becomes 500. |
+| `review_count` | Review count as an integer (search), parsed from the approximate text JD shows in search results: 20k+ becomes 20000 and 500+ becomes 500; a trailing + makes it a lower bound. |
 | `review_count_display` | Review count text exactly as JD shows it in search results (search): Chinese source text, such as JD's wording for 20k+. |
 | `good_rate` | Public positive-review percentage shown by JD. |
 | `shop_id` | JD numeric shop ID. |
@@ -232,7 +232,7 @@ python main.py reviews <item_id> --out reviews.csv
 ```
 
 - `item`、`price`、`reviews` 的 `item_id` 用 `search` 结果里的 `item_id`（数字）。
-- `search` 默认返回 5 条，每 5 条算一次调用。
+- `search` 默认返回 5 条，`limit` 可设 1 到 30 条，每 5 条算一次调用；用 `next_page_token` 或 `page` 往后翻，最多到第 150 条。
 - `price` 返回当前价格 `price` 和币种 `currency`。
 - 不加 `--out` 时打印前 3 条 JSON；加 `--out` 存成 .csv 或 .json。CSV 带 BOM，Excel 直接打开不乱码。
 - API Key 在 everyinfra.com 注册后到控制台创建，步骤见 <https://everyinfra.com/docs?utm_source=github&utm_medium=example_repo&utm_campaign=jd-api#quickstart>
@@ -302,7 +302,7 @@ Claude 网页版和桌面版的自定义连接器、ChatGPT 只能填网址：�
 | `title` | 标题。 |
 | `price` | 价格数值，不含货币符号；币种见 currency。 |
 | `currency` | 价格币种代码（如 CNY、USD）。 |
-| `review_count` | 搜索列表上的评价数，整数（search）：把京东显示的约数文本转成数字，「2万+」→ 20000，「500+」→ 500。 |
+| `review_count` | 搜索列表上的评价数，整数（search）：把京东显示的约数文本转成数字，「2万+」→ 20000，「500+」→ 500；带「+」时是下限。 |
 | `review_count_display` | 京东搜索列表上显示的评价数原文（search），如「2万+」，原样返回；列表没给这个文本时不返回此列。 |
 | `good_rate` | 京东公开的好评率百分比。 |
 | `shop_id` | 京东店铺数字 ID。 |
